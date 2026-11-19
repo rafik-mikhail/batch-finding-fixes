@@ -8,6 +8,7 @@
 - **Grouped dependency updates.** Dependabot and Renovate can group security updates per ecosystem. If those tools are already set up, use them rather than editing lockfiles in the agent.
 - **Secrets are not fixed by deletion.** The value stays in history and in any copy. Rotation is the fix.
 - **Plan approval is a hard gate.** This follows the rule that agents get plan approval before code changes.
+- **Fix-first batches stay separate.** They carry no validation evidence, so a reviewer should see that the tests are the only check. If they fail, the shortcut ends and the findings go to validation.
 
 ## Areas for improvement
 
@@ -22,3 +23,4 @@
 - [GitHub: Responsible use of security AI features](https://docs.github.com/en/code-security/responsible-use/security-and-quality-ai-features): limits of automated fixes.
 - [GitHub: Dependabot grouped security updates](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/configure-security-updates).
 - [Renovate: vulnerabilityAlerts](https://docs.renovatebot.com/configuration-options/#vulnerabilityalerts).
+- [Endor Labs: upgrade impact analysis](https://docs.endorlabs.com/risk-remediation/upgrade-impact-analysis): breaking-change risk in minor and patch upgrades.

@@ -2,7 +2,7 @@
 name: batch-finding-fixes
 description: Group approved fix decisions for security-scan findings into reviewable batches that share one change, plan each batch for approval, then implement it as one traceable change set with existing tests run. Use after decide-finding-action, when findings have approved fix or code-based mitigate decisions with fix keys. Do not change code before plan approval, and do not verify closure, dismiss, or close alerts.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Batch finding fixes
@@ -17,7 +17,7 @@ Code changes start only after a human approves the batch plan. Stay within the r
 
 Required: decision records with `action: fix` or a code-based `mitigate`, a `fix_key`, and `approval` of the action; and authorized write access to the affected repositories.
 
-Optional: root-cause groups, priority outcomes, owners, the repository's test and build commands, contribution rules, and a maximum batch size.
+Optional: fix targets and routes, priority outcomes, owners, the repository's test and build commands, contribution rules, and a maximum batch size.
 
 ## Procedure
 
@@ -27,7 +27,8 @@ Optional: root-cause groups, priority outcomes, owners, the repository's test an
 2. You may combine different fix keys into one batch only if all of these hold: same repository, same owner or reviewer, same fix technique (a pattern cohort), same priority outcome, and the combined change can be reviewed in one sitting.
 3. Never combine: different repositories; a dependency or image upgrade with application code changes; a major-version upgrade with anything else; an `immediate` finding with lower-priority work. Ship `immediate` work alone and first.
 4. Respect the user's maximum batch size. Without one, keep batches well under 25 findings, which is the most GitHub's agentic autofix accepts in one pull request, and split by module when a change spreads across unrelated areas.
-5. Order batches by the highest priority outcome they contain, then by the number of findings they clear.
+5. Keep `fix-first` (not-validated) findings in their own batches, separate from validated work, and label the batch `fix-first`.
+6. Order batches by the highest priority outcome they contain, then by the number of findings they clear.
 
 ### 2. Plan each batch and get approval
 
@@ -46,7 +47,7 @@ Never use a suppression comment, rule exclusion, or lowered severity as a fix.
 
 ### 4. Check the batch
 
-Run the repository's existing build, tests, and linters, within your authorization. Add a regression test where practical, one that asserts the safe behavior, such as that input is passed as a query parameter. Do not write exploit payloads. If tests fail and you cannot fix them within the batch scope, stop and report.
+Run the repository's existing build, tests, and linters, within your authorization. Add a regression test where practical, one that asserts the safe behavior, such as that input is passed as a query parameter. Do not write exploit payloads. If tests fail and you cannot fix them within the batch scope, stop and report. For a `fix-first` batch, a failing test, a needed code change, or a needed major-version change ends the shortcut: revert the batch and send its findings to `validate-scan-finding` with the failure. Passing tests is the only evidence a `fix-first` upgrade has; most patch and minor upgrades contain at least one potentially breaking change.
 
 Re-check each member: if the change does not address a member finding, remove it from the batch and send it back to `decide-finding-action` with the reason. If the fix needs a design decision outside the plan, stop and return to the human.
 
